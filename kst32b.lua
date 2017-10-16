@@ -1,3 +1,5 @@
+-- XGUI FONT FILE version 1.0.0.1
+
 __xgui_kst32b={
 [32]='!~ ',
 [33]='&¶B√E∆©h€Le… ',

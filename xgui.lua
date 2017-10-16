@@ -1,3 +1,5 @@
+-- XGUI version 1.0.0.1
+
 require("daretoku_taka/kst32b.lua")
 
 XGUI = {}

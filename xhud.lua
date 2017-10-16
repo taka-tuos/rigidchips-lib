@@ -1,3 +1,5 @@
+-- XHUD version 1.0.0.1
+
 XHUD = {}
 
 _rader = 0

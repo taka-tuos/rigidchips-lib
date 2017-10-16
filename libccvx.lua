@@ -1,3 +1,5 @@
+-- LIBCCVX version 1.0.0.1
+
 do
 	local FSX=_X(FS)
 	local FSY=_Y(FS)
