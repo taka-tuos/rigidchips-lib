@@ -1,0 +1,33 @@
+XGL={}
+
+function XGL.GenHash(s)
+	local i,j
+	j = 0
+	for i=1,string.len(s) do
+		j = j + string.byte(s,i)
+	end
+	return string.format("H_%08x_mqo",j)
+end
+
+function XGL.Draw(m,f,e)
+	local i, j, u, v, w
+	local x, y, z
+	w = 0
+	
+	for i = 0,m.g_Polnum_a-1 do
+		_SETCOLOR(m.g_Polcol[i+1])
+		for j = 0,m.g_Polnum[i+1] do
+			u = w + j
+			v = w + math.mod((j + 1),m.g_Polnum[i+1])
+			x = m.g_Vertex[m.g_Vindex[v+1]*3+0+1]
+			y = m.g_Vertex[m.g_Vindex[v+1]*3+1+1]
+			z = m.g_Vertex[m.g_Vindex[v+1]*3+2+1]
+			x,y,z=f(x,y,z,e)
+			if j == 0 then _MOVE3D(x,y,z)
+			else _LINE3D(x,y,z) end
+		end
+		w = w + m.g_Polnum[i+1]
+	end
+	
+	return m.g_Polnum_a
+end
