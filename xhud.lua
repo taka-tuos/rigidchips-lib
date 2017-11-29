@@ -262,11 +262,40 @@ function XHUD.Draw()
 	
 	_rader = _rader + _raderbase
 	
+	if not _prdp then _prdp = {} end
+	
 	for i=1,_PLAYERS()-1 do
 		local x,y,z = _NPOS(i)
 		local _wsize_hlf = r_r+16
 		
 		local x1,y1 = x-_X(0),z-_Z(0)
+		
+		if not _prdp[_PLAYERID(i)] then
+			_prdp[_PLAYERID(i)] = {}
+			_prdp[_PLAYERID(i)].x = x
+			_prdp[_PLAYERID(i)].y = z
+			_prdp[_PLAYERID(i)].vx = 0
+			_prdp[_PLAYERID(i)].vy = 1
+		end
+		
+		local vx = x - _prdp[_PLAYERID(i)].x
+		local vy = z - _prdp[_PLAYERID(i)].y
+		
+		_prdp[_PLAYERID(i)].x = x
+		_prdp[_PLAYERID(i)].y = z
+		
+		local vl = math.sqrt(vx ^ 2 + vy ^ 2)
+		
+		if vl == 0 then
+			vx = _prdp[_PLAYERID(i)].vx
+			vy = _prdp[_PLAYERID(i)].vy
+		else
+			vx = vx / vl
+			vy = vy / vl
+			
+			_prdp[_PLAYERID(i)].vx = vx
+			_prdp[_PLAYERID(i)].vy = vy
+		end
 		
 		local x2 = x1 * math.cos(_EY(0)) - y1 * math.sin(_EY(0))
 		local y2 = x1 * math.sin(_EY(0)) + y1 * math.cos(_EY(0))
@@ -323,8 +352,38 @@ function XHUD.Draw()
 				XGUI.SetStringPosition(x2+8,y2+8)
 				XGUI.DrawVectorString(string.format("LOCK %s",szL))
 			end
-			XGUI.SetStringPosition(x2,y2)
-			XGUI.DrawVectorStringCenter("Å~")
+			
+			local ptri = {{0,6},{-4,-6},{4,-6}}
+			
+			local pi = 0
+			
+			for pi=1,3 do
+				local pi1 = pi
+				local pi2 = pi+1
+				if pi2 > 3 then pi2 = 1 end
+				
+				local pix1,piy1 = ptri[pi1][2],ptri[pi1][1]
+				local pix2,piy2 = ptri[pi2][2],ptri[pi2][1]
+				
+				local vx1 = vx * math.cos(_EY(0)) - vy * math.sin(_EY(0))
+				local vy1 = vx * math.sin(_EY(0)) + vy * math.cos(_EY(0))
+				
+				local pvth = -math.atan2(-vy1,-vx1)
+				
+				local pfx1 = pix1 * math.cos(pvth) - piy1 * math.sin(pvth)
+				local pfy1 = pix1 * math.sin(pvth) + piy1 * math.cos(pvth)
+				
+				local pfx2 = pix2 * math.cos(pvth) - piy2 * math.sin(pvth)
+				local pfy2 = pix2 * math.sin(pvth) + piy2 * math.cos(pvth)
+				
+				XGUI.Move2D(pfx1+x2,pfy1+y2)
+				XGUI.Line2D(pfx2+x2,pfy2+y2)
+			end
+			
+			--XGUI.SetStringPosition(x2,y2)
+			
+			--XGUI.SetStringPosition(x2,y2)
+			--XGUI.DrawVectorStringCenter("Å~")
 		end
 	end
 	

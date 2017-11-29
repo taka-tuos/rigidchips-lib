@@ -1,29 +1,28 @@
--- XGUI version 1.0.0.1
+-- XGUI version 1.1.0.0
 
 require("daretoku_taka/kst32b.lua")
 
 XGUI = {}
 
-__xgui_fy = 16
-__xgui_fx = __xgui_fy / 2
-__xgui_fm = __xgui_fy / 32
+__xgui_fy = 16				-- フォントのY方向表示サイズ(ドット単位)
+__xgui_fx = __xgui_fy / 2	-- フォントのX方向表示サイズ(ドット単位)
+__xgui_fm = __xgui_fy / 32	-- フォントの表示時ドットサイズ(ドット単位)
 
-__xgui_windowsarray = {}
-__xgui_windowmax = 24
+__xgui_windowsarray = {}	-- ウィンドウ管理配列
 
-__xgui_openwindowposx = 16
-__xgui_openwindowposy = 16
-__xgui_nowmove = nil
+__xgui_openwindowposx = 16	-- ウィンドウ出現デフォルトX座標(ドット単位)
+__xgui_openwindowposy = 16	-- ウィンドウ出現デフォルトY座標(ドット単位)
+__xgui_nowmove = nil		-- 現在移動中のウィンドウコンテキスト(非移動時はnil)
 
-__xgui_x=0
-__xgui_y=0
-__xgui_vx=0
-__xgui_vy=0
+__xgui_x=0					-- フォント描画時のラインX座標バッファ(ドット単位)
+__xgui_y=0					-- フォント描画時のラインY座標バッファ(ドット単位)
+__xgui_vx=0					-- フォント描画位置X座標(ドット単位)
+__xgui_vy=0					-- フォント描画位置Y座標(ドット単位)
 
-__xgui_moveorginx = 0
-__xgui_moveorginy = 0
+__xgui_moveorginx = 0		-- 描画原点X座標(ドット単位)
+__xgui_moveorginy = 0		-- 描画原点Y座標(ドット単位)
 
-__xgui_mbx,__xgui_mby = _MX(),_MY()
+__xgui_mbx,__xgui_mby = _MX(),_MY()		-- マウスX,Y座標(ドット単位)
 
 function XGUI.GetRegularPoint(x,y)
 	local rX,rY=0,0
@@ -140,6 +139,13 @@ function XGUI.KST32BStroke3D(str,shader,shaderext)
 			__xgui_y=0
 		end
 	end
+end
+
+function XGUI.DrawVectorStringSide(stir)
+	__xgui_vx = __xgui_vx -- - XGUI.VectorStringWidth(stir) / 2
+	__xgui_vy = __xgui_vy -- - __xgui_fy / 2
+	
+	XGUI.DrawVectorString(stir)
 end
 
 function XGUI.DrawVectorStringCenter(stir)
@@ -322,9 +328,10 @@ function XGUI.CreateWindow(w,h,t,f,c)
 	obj.f = f
 	obj.c = c
 	
-	local n = XGUI.GetFreeWindowManager()
+	--local n = XGUI.GetFreeWindowManager()
 	
-	__xgui_windowsarray[n] = obj
+	--__xgui_windowsarray[n] = obj
+	table.insert(__xgui_windowsarray,obj)
 	
 	__xgui_openwindowposx = __xgui_openwindowposx + 16
 	__xgui_openwindowposy = __xgui_openwindowposy + 16
@@ -338,13 +345,11 @@ end
 function XGUI.DeleteWindow(obj)
 	local i
 	
-	for i=1,__xgui_windowmax do
-		if __xgui_windowsarray[i] ~= nil then
-			if __xgui_windowsarray[i] == obj then
-				table.remove(__xgui_windowsarray,i)
-			end
+	table.foreach(__xgui_windowsarray, function(i,lobj)
+		if lobj == obj then
+			table.remove(__xgui_windowsarray,i)
 		end
-	end
+	end)
 end
 
 function XGUI.DrawWindowObj(obj)
@@ -403,49 +408,45 @@ function XGUI.RefreshWindowManager()
 	
 	local ismove = 0
 	
-	for i=1,__xgui_windowmax do
-		if __xgui_windowsarray[i] ~= nil then
-			local obj = __xgui_windowsarray[i]
-			if ml == 1 then
-				if
-					((mx >= obj.x and mx < obj.x + obj.w - 20 and my >= obj.y and my < obj.y + 20)
-					or
-					(mbx >= obj.x and mbx < obj.x + obj.w - 20 and mby >= obj.y and mby < obj.y + 20))
-					and
-					((__xgui_nowmove == nil or __xgui_nowmove == i)
-					and
-					(__xgui_mbl == 0 or __xgui_nowmove == i))
-				then
-					__xgui_windowsarray[i] = obj
-					obj.x = obj.x + (mx - mbx)
-					obj.y = obj.y + (my - mby)
-					if __xgui_nowmove == nil then
-						table.remove(__xgui_windowsarray,i)
-						table.insert(__xgui_windowsarray,obj)
-					end
-					ismove = 1
-					__xgui_nowmove = table.getn(__xgui_windowsarray)
-					i = __xgui_windowmax
+	table.foreach(__xgui_windowsarray, function(i,obj)
+		if ml == 1 then
+			if
+				((mx >= obj.x and mx < obj.x + obj.w - 20 and my >= obj.y and my < obj.y + 20)
+				or
+				(mbx >= obj.x and mbx < obj.x + obj.w - 20 and mby >= obj.y and mby < obj.y + 20))
+				and
+				((__xgui_nowmove == nil or __xgui_nowmove == i)
+				and
+				(__xgui_mbl == 0 or __xgui_nowmove == i))
+			then
+				obj.x = obj.x + (mx - mbx)
+				obj.y = obj.y + (my - mby)
+				if __xgui_nowmove == nil then
+					table.remove(__xgui_windowsarray,i)
+					table.insert(__xgui_windowsarray,obj)
 				end
-				
-				if
-					(mx >= obj.x + obj.w - 20 and mx < obj.x + obj.w and my >= obj.y and my < obj.y + 20)
-					and
-					obj.c == true
-				then
-					XGUI.DeleteWindow(obj)
-				end
+				ismove = 1
+				__xgui_nowmove = table.getn(__xgui_windowsarray)
+				return 0
+			end
+			
+			if
+				(mx >= obj.x + obj.w - 20 and mx < obj.x + obj.w and my >= obj.y and my < obj.y + 20)
+				and
+				obj.c == true
+				and
+				__xgui_nowmove == nil
+			then
+				XGUI.DeleteWindow(obj)
 			end
 		end
-	end
+	end)
 	
-	for i=1,__xgui_windowmax do
-		if __xgui_windowsarray[i] ~= nil then
-			local obj = __xgui_windowsarray[i]
-			XGUI.DrawWindowObj(obj)
-			obj.f(obj)
-		end
-	end
+	table.foreach(__xgui_windowsarray, function(i,obj)
+		local obj = __xgui_windowsarray[i]
+		XGUI.DrawWindowObj(obj)
+		obj.f(obj)
+	end)
 	
 	if ismove == 0 then
 		__xgui_nowmove = nil
@@ -453,16 +454,6 @@ function XGUI.RefreshWindowManager()
 	
 	__xgui_mbx,__xgui_mby = XGUI.GetMousePoint()
 	__xgui_mbl = XGUI.GetMouseClick()
-end
-
-function XGUI.GetFreeWindowManager()
-	local i
-	for i=1,__xgui_windowmax do
-		if __xgui_windowsarray[i] == nil then
-			return i
-		end
-	end
-	return 0
 end
 
 function XGUI.WindowDrawBegin(obj)
