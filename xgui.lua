@@ -22,6 +22,8 @@ __xgui_vy=0					-- フォント描画位置Y座標(ドット単位)
 __xgui_moveorginx = 0		-- 描画原点X座標(ドット単位)
 __xgui_moveorginy = 0		-- 描画原点Y座標(ドット単位)
 
+__xgui_jit = {}				-- コンパイル済み関数置き場
+
 __xgui_mbx,__xgui_mby = _MX(),_MY()		-- マウスX,Y座標(ドット単位)
 
 function XGUI.GetRegularPoint(x,y)
@@ -63,7 +65,16 @@ function XGUI.Line2D(x,y)
 	_LINE2D(rx,ry)
 end
 
-function XGUI.KST32BStroke(str)
+function XGUI.GetJit(id)
+	if not __xgui_jit[id] then __xgui_jit[id] = {} end
+	return __xgui_jit[id]
+end
+
+function XGUI.KST32BStroke(str,id)
+	local jitfuncs = XGUI.GetJit("kst32b")
+
+	if jitfuncs[id] then jitfuncs[id]() return end
+	
 	local i
 	
 	local __move = XGUI.Move2D
@@ -71,36 +82,54 @@ function XGUI.KST32BStroke(str)
 	
 	if not str then return end
 	
+	local jit = ""
+		
+	__move = function(x,y) jit = jit .. string.format("XGUI.Move2D(%f*__xgui_fm+__xgui_vx,%f*-__xgui_fm+__xgui_vy+__xgui_fy)\n",x,y) end
+	__line = function(x,y) jit = jit .. string.format("XGUI.Line2D(%f*__xgui_fm+__xgui_vx,%f*-__xgui_fm+__xgui_vy+__xgui_fy)\n",x,y) end
+	
 	for i=1,string.len(str) do
 		local a = string.byte(str,i)
 		if a>32 and a<39 then
 			__xgui_x=a-33
-			__move(__xgui_x*__xgui_fm+__xgui_vx,__xgui_y*-__xgui_fm+__xgui_vy+__xgui_fy)
+			--__move(__xgui_x*__xgui_fm+__xgui_vx,__xgui_y*-__xgui_fm+__xgui_vy+__xgui_fy)
+			__move(__xgui_x,__xgui_y)
 		elseif a>39 and a<64 then
 			__xgui_x=a-34
-			__move(__xgui_x*__xgui_fm+__xgui_vx,__xgui_y*-__xgui_fm+__xgui_vy+__xgui_fy)
+			--__move(__xgui_x*__xgui_fm+__xgui_vx,__xgui_y*-__xgui_fm+__xgui_vy+__xgui_fy)
+			__move(__xgui_x,__xgui_y)
 		elseif a>63 and a<92 then
 			__xgui_x=a-64
-			__line(__xgui_x*__xgui_fm+__xgui_vx,__xgui_y*-__xgui_fm+__xgui_vy+__xgui_fy)
+			--__line(__xgui_x*__xgui_fm+__xgui_vx,__xgui_y*-__xgui_fm+__xgui_vy+__xgui_fy)
+			__line(__xgui_x,__xgui_y)
 		elseif a>93 and a<96 then
 			__xgui_x=a-65
-			__line(__xgui_x*__xgui_fm+__xgui_vx,__xgui_y*-__xgui_fm+__xgui_vy+__xgui_fy)
+			--__line(__xgui_x*__xgui_fm+__xgui_vx,__xgui_y*-__xgui_fm+__xgui_vy+__xgui_fy)
+			__line(__xgui_x,__xgui_y)
 		elseif a>95 and a<126 then
 			__xgui_x=(a-96)
 		elseif a==126 then
 			__xgui_y=0
-			__move(__xgui_x*__xgui_fm+__xgui_vx,__xgui_y*-__xgui_fm+__xgui_vy+__xgui_fy)
+			--__move(__xgui_x*__xgui_fm+__xgui_vx,__xgui_y*-__xgui_fm+__xgui_vy+__xgui_fy)
+			__move(__xgui_x,__xgui_y)
 		elseif a>160 and a<192 then
 			__xgui_y=a-160
-			__move(__xgui_x*__xgui_fm+__xgui_vx,__xgui_y*-__xgui_fm+__xgui_vy+__xgui_fy)
+			--__move(__xgui_x*__xgui_fm+__xgui_vx,__xgui_y*-__xgui_fm+__xgui_vy+__xgui_fy)
+			__move(__xgui_x,__xgui_y)
 		elseif a>191 and a<224 then
 			__xgui_y=a-192
-			__line(__xgui_x*__xgui_fm+__xgui_vx,__xgui_y*-__xgui_fm+__xgui_vy+__xgui_fy)
+			--__line(__xgui_x*__xgui_fm+__xgui_vx,__xgui_y*-__xgui_fm+__xgui_vy+__xgui_fy)
+			__line(__xgui_x,__xgui_y)
 		elseif a==39 or a==92 or a==93 then
 			__xgui_x=0
 			__xgui_y=0
 		end
 	end
+	
+	local f = loadstring(jit)
+	
+	f()
+	
+	jitfuncs[id] = f
 end
 
 function XGUI.KST32BStroke3D(str,shader,shaderext)
@@ -156,12 +185,20 @@ function XGUI.DrawVectorStringCenter(stir)
 end
 
 function XGUI.DrawVectorString(stir)
+	if not stir or string.len(stir) == 0 then return end
+
+	local jitfuncs = XGUI.GetJit("drawVS2D")
+	
+	if jitfuncs[stir] then jitfuncs[stir]() return end
+
 	local __stroke = XGUI.KST32BStroke
 	local i
 	local ji
 	local tbl = __xgui_kst32b
 	
 	local lb = 0
+	
+	local jit = ""
 	
 	for i=1,string.len(stir) do
 		ji = string.byte(stir,i)
@@ -170,7 +207,8 @@ function XGUI.DrawVectorString(stir)
 			if (129 <= ji and ji <= 159) or (224 <= ji and ji <= 252) then
 				lb = ji
 			else
-				__stroke(tbl[ji])
+				--__stroke(tbl[ji],ji+10000)
+				if tbl[ji] then jit = jit .. string.format("XGUI.KST32BStroke(\'%s\',%d)\n",tbl[ji],ji+10000) end
 			end
 		else
 			local k,t = 0,0
@@ -190,17 +228,27 @@ function XGUI.DrawVectorString(stir)
 				k = k + 1
 			end
 			
-			__xgui_vx = __xgui_vx - __xgui_fx
+			--__xgui_vx = __xgui_vx - __xgui_fx
+			jit = jit .. "__xgui_vx = __xgui_vx - __xgui_fx\n"
 			
-			__stroke(tbl[((k + 161) * 256 + (t + 161)) - 32896])
+			--__stroke(tbl[((k + 161) * 256 + (t + 161)) - 32896],k*100+t)
+			if tbl[((k + 161) * 256 + (t + 161)) - 32896] then jit = jit .. string.format("XGUI.KST32BStroke(\'%s\',%d)\n",tbl[((k + 161) * 256 + (t + 161)) - 32896],k*100+t) end
 			
 			lb = 0
 			
-			__xgui_vx = __xgui_vx + __xgui_fx
+			--__xgui_vx = __xgui_vx + __xgui_fx
+			jit = jit .. "__xgui_vx = __xgui_vx + __xgui_fx\n"
 		end
 		
-		__xgui_vx = __xgui_vx + __xgui_fx
+		--__xgui_vx = __xgui_vx + __xgui_fx
+		jit = jit .. "__xgui_vx = __xgui_vx + __xgui_fx\n"
 	end
+	
+	local f = loadstring(jit)
+	
+	f()
+	
+	jitfuncs[stir] = f
 end
 
 function XGUI.CreateButton(w,h,x,y,t,win)
@@ -426,7 +474,7 @@ function XGUI.RefreshWindowManager()
 					table.insert(__xgui_windowsarray,obj)
 				end
 				ismove = 1
-				__xgui_nowmove = table.getn(__xgui_windowsarray)
+				__xgui_nowmove = i
 				return 0
 			end
 			
@@ -436,6 +484,8 @@ function XGUI.RefreshWindowManager()
 				obj.c == true
 				and
 				__xgui_nowmove == nil
+				and
+				__xgui_mbl == 0
 			then
 				XGUI.DeleteWindow(obj)
 			end

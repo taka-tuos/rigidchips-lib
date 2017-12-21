@@ -1,4 +1,4 @@
--- XHUD version 1.0.0.1
+-- XHUD2 version 1.0.0.0
 
 XHUD = {}
 
@@ -392,7 +392,30 @@ function XHUD.Draw()
 		x2 = x2 / _rader * -r_r + _wsize_hlf
 		y2 = y2 / _rader *	r_r + _wsize_hlf
 		
-		local j
+		if Weapon then
+			local tbl = Weapon.PositionTable()
+			table.foreach(tbl, function(i,v)
+				local xd,yd = v.x-_X(0),v.z-_Z(0)
+				
+				local xm = xd * math.cos(_EY(0)) - yd * math.sin(_EY(0))
+				local ym = xd * math.sin(_EY(0)) + yd * math.cos(_EY(0))
+				
+				xm = xm / _rader * -r_r + _wsize_hlf
+				ym = ym / _rader *	r_r + _wsize_hlf
+				
+				if math.sqrt(xd * xd + yd * yd) < _rader then
+					XGUI.SetStringSize(6)
+					
+					XGUI.SetDrawColorRGB(255,255,255)
+					
+					XGUI.SetStringPosition(xm,ym)
+					XGUI.DrawVectorStringCenter("¢")
+				end
+			end)
+		end
+		
+		--[[local j
+		
 		
 		for j=1,_mn do
 			if _men[i] then
@@ -415,7 +438,7 @@ function XHUD.Draw()
 					XGUI.DrawVectorStringCenter("¢")
 				end
 			end
-		end
+		end]]--
 		
 		XGUI.SetStringSize(12)
 		
@@ -534,9 +557,9 @@ function XHUD.Draw()
 	XGUI.SetStringSize(24)
 	XGUI.SetDrawColorRGB(255,255,0)
 	
-	for i=1,_mn do
+	--[[for i=1,_mn do
 		XGUI.SetStringPosition(288,64-24+24*i)
 		XGUI.DrawVectorString(string.format("%d %s %dm/s",_ntp[i],_PLAYERNAME(_ntp[i]),_VEL(_G["MC"..i])))
-	end
+	end]]--
 	--</HUD>---------------------------------------------------------------
 end
