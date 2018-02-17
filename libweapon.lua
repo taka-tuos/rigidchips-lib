@@ -40,6 +40,7 @@ end
 
 function Weapon.Init(tbl)
 	local xi=1
+	if not tbl then return end
 	table.foreach(tbl, function(i,v)
 		if _G[i] then
 			local wn = v.n
@@ -51,6 +52,7 @@ function Weapon.Init(tbl)
 				wd.firebutton = v.fire
 				wd.firefunc = v.func
 				wd.fired = false
+				wd.category = i
 				if wd.obj.usetgt then
 					wd.obj.xi = xi
 					Weapon.Target[xi] = 0
@@ -67,11 +69,11 @@ function Weapon.Step()
 	Weapon.Selected = math.mod(_KEY(11)*2+Weapon.Selected,Weapon.Max)
 	table.foreach(Weapon.List, function(i,v)
 		if v.firefunc(v.firebutton) == 1 then
-			if v.obj.xi == Weapon.Selected+1 or v.obj.xi == Weapon.Selected+2 then
+			if v.obj.xi == nil or v.obj.xi == Weapon.Selected+1 or v.obj.xi == Weapon.Selected+2 then
 				v.obj = v.obj:Fire()
 			end
 		else
-			if (v.obj.xi == Weapon.Selected+1 or v.obj.xi == Weapon.Selected+2) and v.obj.UnFire then
+			if (v.obj.xi == nil or v.obj.xi == Weapon.Selected+1 or v.obj.xi == Weapon.Selected+2) and v.obj.UnFire then
 				v.obj = v.obj:UnFire()
 			end
 		end
@@ -107,9 +109,9 @@ function Weapon.Stat()
 			XGUI.SetStringPosition(288,64-24+24*v.obj.xi)
 			local s = "  "
 			if v.obj.xi == Weapon.Selected+1 or v.obj.xi == Weapon.Selected+2 then
-				s = "Å£"
+				s = "ÅÀ"
 			end
-			XGUI.DrawVectorString(string.format("%s %d:%s",s,Weapon.Target[v.obj.xi],_PLAYERNAME(Weapon.Target[v.obj.xi])))
+			XGUI.DrawVectorString(string.format("%s %d:%s [%s]",s,Weapon.Target[v.obj.xi],_PLAYERNAME(Weapon.Target[v.obj.xi]),v.category))
 		end
 	end)
 end
@@ -117,7 +119,7 @@ end
 function Weapon.PositionTable()
 	local tbl = {}
 	table.foreach(Weapon.List, function(i,v)
-		if v.obj:isEnabled() then
+		if v.obj.usetgt and v.obj:isEnabled() then
 			local obj = {}
 			local x,y,z = v.obj:GetPosition()
 			obj.x = x

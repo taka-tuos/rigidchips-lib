@@ -2,11 +2,11 @@
 
 Missile = {}
 
-function _NORMAL3(a,b,c,d,e,f)
+local _NORMAL3 = function(a,b,c,d,e,f)
 	return a / _LEN3(a,b,c), b / _LEN3(a,b,c), c / _LEN3(a,b,c), d, e, f
 end
 
-function RaySphereAAM(lx, ly, lz, vx, vy, vz, px, py, pz, r)
+local RaySphereAAM = function(lx, ly, lz, vx, vy, vz, px, py, pz, r)
 	px = px - lx
 	py = py - ly
 	pz = pz - lz

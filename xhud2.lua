@@ -450,19 +450,21 @@ function XHUD.Draw()
 			
 			local k = 0
 			
-			for j=1, _mn do
-				if _ntp[j] == i then
-					if k ~= 0 then szL = szL .. "," end
-					szL = szL .. j
-					enL = true
-					k = k + 1
+			if Weapon then
+				for j=1, Weapon.Max do
+					if Weapon.Target[j] == i then
+						if k ~= 0 then szL = szL .. "," end
+						szL = szL .. j
+						enL = true
+						k = k + 1
+					end
 				end
-			end
-			
-			if enL then
-				XGUI.SetDrawColorRGB(255,255,0)
-				XGUI.SetStringPosition(x2+8,y2+8)
-				XGUI.DrawVectorString(string.format("LOCK %s",szL))
+				
+				if enL then
+					XGUI.SetDrawColorRGB(255,255,0)
+					XGUI.SetStringPosition(x2+8,y2+8)
+					XGUI.DrawVectorString(string.format("LOCK %s",szL))
+				end
 			end
 			
 			local ptri = {{0,6},{-4,-6},{4,-6}}
