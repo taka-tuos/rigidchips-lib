@@ -357,6 +357,8 @@ function XHUD.Draw()
 		local x,y,z = _NPOS(i)
 		local _wsize_hlf = r_r+16
 		
+		--Weapon.TargetBox(x,y,z,1)
+		
 		local x1,y1 = x-_X(0),z-_Z(0)
 		
 		if not _prdp[_PLAYERID(i)] then

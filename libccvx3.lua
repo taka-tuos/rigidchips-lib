@@ -189,7 +189,7 @@ function XPID_new()
 			
 			local d = e_d * kd
 			
-			i=math.min(20,math.max(-20,i))
+			i=math.min(lim,math.max(-lim,i))
 			
 			self.i = i
 			

@@ -47,8 +47,11 @@ function Gun.Create(func,n,rawtable)
 			_G['G'..i]=0
 		end
 		
+		GJ=0
+		
 		if self.en and _E(_G['A'..self.v]) == _OPTION(_G['A'..self.v]) and _G['V'..self.v] == 0 then
 			_G['G'..self.v]=_OPTION(_G['A'..self.v])
+			GJ=_OPTION(_G['A'..self.v])
 			self.v=math.mod(self.v+1,obj.mx)
 			for i=1,self.mx do
 				self.tv[i] = self.an
