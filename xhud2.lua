@@ -509,8 +509,8 @@ function XHUD.Draw()
 	
 	XGUI.SetDrawColorRGB(0,255,0)
 	
-	XGUI.SetStringPosition(24,32)
-	XGUI.DrawVectorString(string.format("% 4.4f",_FPS()))
+	--XGUI.SetStringPosition(24,32)
+	--XGUI.DrawVectorString(string.format("% 4.4f",_FPS()))
 	
 	XGUI.SetStringSize(16)
 	

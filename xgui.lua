@@ -132,42 +132,68 @@ function XGUI.KST32BStroke(str,id)
 	jitfuncs[id] = f
 end
 
-function XGUI.KST32BStroke3D(str,shader,shaderext)
+function XGUI.KST32BStroke3D(str,id,shader,shaderext)
+	local jitfuncs = XGUI.GetJit("kst32b3D")
+
+	if jitfuncs[id] then jitfuncs[id](shader,shaderext) return end
+	
 	local i
 	
-	local __move = _MOVE3D
-	local __line = _LINE3D
+	local __move = XGUI.Move2D
+	local __line = XGUI.Line2D
+	
+	if not str then return end
+	
+	local jit = "return function(shader,shaderext) "
+		
+	__move = function(x,y) jit = jit .. string.format("_MOVE3D(shader(%f*__xgui_fm+__xgui_vx,%f*__xgui_fm+__xgui_vy,shaderext)) ",x,y) end
+	__line = function(x,y) jit = jit .. string.format("_LINE3D(shader(%f*__xgui_fm+__xgui_vx,%f*__xgui_fm+__xgui_vy,shaderext)) ",x,y) end
 	
 	for i=1,string.len(str) do
 		local a = string.byte(str,i)
 		if a>32 and a<39 then
 			__xgui_x=a-33
-			__move(shader(__xgui_x,__xgui_y,shaderext))
+			--__move(shader(__xgui_x,__xgui_y,shaderext))
+			__move(__xgui_x,__xgui_y)
 		elseif a>39 and a<64 then
 			__xgui_x=a-34
-			__move(shader(__xgui_x,__xgui_y,shaderext))
+			--__move(shader(__xgui_x,__xgui_y,shaderext))
+			__move(__xgui_x,__xgui_y)
 		elseif a>63 and a<92 then
 			__xgui_x=a-64
-			__line(shader(__xgui_x,__xgui_y,shaderext))
+			--__line(shader(__xgui_x,__xgui_y,shaderext))
+			__line(__xgui_x,__xgui_y)
 		elseif a>93 and a<96 then
 			__xgui_x=a-65
-			__line(shader(__xgui_x,__xgui_y,shaderext))
+			--__line(shader(__xgui_x,__xgui_y,shaderext))
+			__line(__xgui_x,__xgui_y)
 		elseif a>95 and a<126 then
 			__xgui_x=(a-96)
 		elseif a==126 then
 			__xgui_y=0
-			__move(shader(__xgui_x,__xgui_y,shaderext))
+			--__move(shader(__xgui_x,__xgui_y,shaderext))
+			__move(__xgui_x,__xgui_y)
 		elseif a>160 and a<192 then
 			__xgui_y=a-160
-			__move(shader(__xgui_x,__xgui_y,shaderext))
+			--__move(shader(__xgui_x,__xgui_y,shaderext))
+			__move(__xgui_x,__xgui_y)
 		elseif a>191 and a<224 then
 			__xgui_y=a-192
-			__line(shader(__xgui_x,__xgui_y,shaderext))
+			--__line(shader(__xgui_x,__xgui_y,shaderext))
+			__line(__xgui_x,__xgui_y)
 		elseif a==39 or a==92 or a==93 then
 			__xgui_x=0
 			__xgui_y=0
 		end
 	end
+	
+	jit = jit .. "end"
+	
+	local f = loadstring(jit)()
+	
+	f(shader,shaderext)
+	
+	jitfuncs[id] = f
 end
 
 function XGUI.DrawVectorStringSide(stir)
@@ -555,12 +581,20 @@ function XGUI.SetDrawColorINT(rgb)
 end
 
 function XGUI.DrawVectorString3D(stir,shader,shaderext)
+	if not stir or string.len(stir) == 0 then return end
+
+	local jitfuncs = XGUI.GetJit("drawVS3D")
+	
+	if jitfuncs[stir] then jitfuncs[stir](shader,shaderext) return end
+	
 	local __stroke = XGUI.KST32BStroke3D
 	local i
 	local ji
 	local tbl = __xgui_kst32b
 	
 	local lb = 0
+	
+	local jit = "return function(shader,shaderext) "
 	
 	for i=1,string.len(stir) do
 		ji = string.byte(stir,i)
@@ -569,7 +603,8 @@ function XGUI.DrawVectorString3D(stir,shader,shaderext)
 			if (129 <= ji and ji <= 159) or (224 <= ji and ji <= 252) then
 				lb = ji
 			else
-				__stroke(tbl[ji],shader,shaderext)
+				--__stroke(tbl[ji],shader,shaderext)
+				if tbl[ji] then jit = jit .. string.format("XGUI.KST32BStroke3D(\'%s\',%d,shader,shaderext) ",tbl[ji],ji+10000) end
 			end
 		else
 			local k,t = 0,0
@@ -589,15 +624,42 @@ function XGUI.DrawVectorString3D(stir,shader,shaderext)
 				k = k + 1
 			end
 			
-			__xgui_vx = __xgui_vx - __xgui_fx
+			--__xgui_vx = __xgui_vx - __xgui_fx
+			jit = jit .. "__xgui_vx = __xgui_vx - __xgui_fx "
 			
-			__stroke(tbl[((k + 161) * 256 + (t + 161)) - 32896],shader,shaderext)
+			--__stroke(tbl[((k + 161) * 256 + (t + 161)) - 32896],shader,shaderext)
+			if tbl[((k + 161) * 256 + (t + 161)) - 32896] then jit = jit .. string.format("XGUI.KST32BStroke3D(\'%s\',%d,shader,shaderext) ",tbl[((k + 161) * 256 + (t + 161)) - 32896],k*100+t) end
 			
 			lb = 0
 			
-			__xgui_vx = __xgui_vx + __xgui_fx
+			--__xgui_vx = __xgui_vx + __xgui_fx
+			jit = jit .. "__xgui_vx = __xgui_vx + __xgui_fx "
 		end
 		
-		__xgui_vx = __xgui_vx + __xgui_fx
+		--__xgui_vx = __xgui_vx + __xgui_fx
+		jit = jit .. "__xgui_vx = __xgui_vx + __xgui_fx "
 	end
+	
+	jit = jit .. "end"
+	
+	local f = loadstring(jit)()
+	
+	f(shader,shaderext)
+	
+	jitfuncs[stir] = f
+end
+
+
+function XGUI.DrawVectorString3DSide(stir,shader,shaderext)
+	__xgui_vx = __xgui_vx -- - XGUI.VectorStringWidth(stir) / 2
+	__xgui_vy = __xgui_vy -- - __xgui_fy / 2
+	
+	XGUI.DrawVectorString3D(stir,shader,shaderext)
+end
+
+function XGUI.DrawVectorString3DCenter(stir,shader,shaderext)
+	__xgui_vx = __xgui_vx - XGUI.VectorStringWidth(stir) / 2
+	__xgui_vy = __xgui_vy - __xgui_fy / 2
+	
+	XGUI.DrawVectorString3D(stir,shader,shaderext)
 end

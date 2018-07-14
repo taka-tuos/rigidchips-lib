@@ -1,4 +1,4 @@
--- LIBCCVX3 version 1.0.0.0
+-- LIBCCVX3 version 2.0.0.0
 
 do
 	local FSX=_X(FS)
@@ -70,29 +70,8 @@ function _LINER(v,t,s)
 	return r
 end
 
-_rate2=0.2
-_rate1=1-_rate2
-
 _md=0
 _splash = 60
-
-function _RECT2D(x,y,s)
-	--ç∂ÇÃècê¸
-	_MOVE2D(x,y)
-	_LINE2D(x,y-s)
-
-	--âEÇÃècê¸
-	_MOVE2D(x+s,y)
-	_LINE2D(x+s,y-s)
-
-	--è„ÇÃâ°ê¸
-	_MOVE2D(x,y)
-	_LINE2D(x+s,y)
-
-	--â∫ÇÃâ°ê¸
-	_MOVE2D(x,y-s)
-	_LINE2D(x+s,y-s)
-end
 
 function _NPOS(n)
 	math.randomseed(1519)
@@ -209,37 +188,6 @@ end
 R_PID = XPID_new()
 V_PID = XPID_new()
 J_PID = XPID_new()
-
-function GetPRV(pid,tbl)
-	local p=_LINER(P,_KEY(4)*tbl.p.limit,tbl.p.step)
-	
-	local r,v = 0,0
-	
-	if pid then
-		local dr = math.rad((_KEY(2)-_KEY(3))*tbl.r.tgt/30)
-		local dv = math.rad((_KEY(1)-_KEY(0))*tbl.v.tgt/30)
-		
-		r = R_PID:PID(dr,WZ,tbl.r.kp,tbl.r.ki,tbl.r.kd,tbl.r.il)
-		v = V_PID:PID(dv,WX,tbl.v.kp,tbl.v.ki,tbl.v.kd,tbl.v.il)
-	else
-		r=_LINER(R,_KEY(2)*tbl.r.limit+_KEY(3)*-tbl.r.limit,tbl.r.step)
-		v=_LINER(V,_KEY(1)*tbl.v.limit+_KEY(0)*-tbl.v.limit,tbl.v.step)
-		
-		local _r,_v = 0,0
-		if _KEY(2) == 0 and _KEY(3) == 0 then
-			_r=WZ*tbl.r.kp
-		end
-		
-		if _KEY(0) == 0 and _KEY(1) == 0 then
-			_v=WX*tbl.v.kp
-		end
-		
-		r=r*_rate1+_r*_rate2
-		v=v*_rate1+_v*_rate2
-	end
-	
-	return p,r,v
-end
 
 function _NORMANALOG(n)
 	local v = _ANALOG(n)

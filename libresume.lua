@@ -165,7 +165,7 @@ function Missile.Create(func,n,rawtable)
 			
 			local dmp = _G["MP"..self.n]
 			
-			if ul > 10 then _G["MP"..self.n] = 200000 end
+			if ul > 10 then _G["MP"..self.n] = _LINER(_G["MP"..self.n],200000,20000) end
 			if ul < 100 and _VEL(core) > 200 then _G["MP"..self.n] = dmp end
 			if ul < 20 then _G["MP"..self.n] = dmp end
 			
