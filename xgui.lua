@@ -84,8 +84,8 @@ function XGUI.KST32BStroke(str,id)
 	
 	local jit = ""
 		
-	__move = function(x,y) jit = jit .. string.format("XGUI.Move2D(%f*__xgui_fm+__xgui_vx,%f*-__xgui_fm+__xgui_vy+__xgui_fy)\n",x,y) end
-	__line = function(x,y) jit = jit .. string.format("XGUI.Line2D(%f*__xgui_fm+__xgui_vx,%f*-__xgui_fm+__xgui_vy+__xgui_fy)\n",x,y) end
+	__move = function(x,y) jit = jit .. string.format("XGUI.Move2D(%f*__xgui_fm+__xgui_vx,%f*-__xgui_fm+__xgui_vy+__xgui_fy) ",x,y) end
+	__line = function(x,y) jit = jit .. string.format("XGUI.Line2D(%f*__xgui_fm+__xgui_vx,%f*-__xgui_fm+__xgui_vy+__xgui_fy) ",x,y) end
 	
 	for i=1,string.len(str) do
 		local a = string.byte(str,i)
@@ -197,10 +197,12 @@ function XGUI.KST32BStroke3D(str,id,shader,shaderext)
 end
 
 function XGUI.DrawVectorStringSide(stir)
-	__xgui_vx = __xgui_vx -- - XGUI.VectorStringWidth(stir) / 2
-	__xgui_vy = __xgui_vy -- - __xgui_fy / 2
+	__xgui_vx = __xgui_vx
+	__xgui_vy = __xgui_vy - __xgui_fy / 2
 	
 	XGUI.DrawVectorString(stir)
+	
+	__xgui_vy = __xgui_vy - __xgui_fy / 2
 end
 
 function XGUI.DrawVectorStringCenter(stir)
@@ -208,6 +210,9 @@ function XGUI.DrawVectorStringCenter(stir)
 	__xgui_vy = __xgui_vy - __xgui_fy / 2
 	
 	XGUI.DrawVectorString(stir)
+	
+	__xgui_vx = __xgui_vx - XGUI.VectorStringWidth(stir) / 2
+	__xgui_vy = __xgui_vy - __xgui_fy / 2
 end
 
 function XGUI.DrawVectorString(stir)
@@ -234,7 +239,7 @@ function XGUI.DrawVectorString(stir)
 				lb = ji
 			else
 				--__stroke(tbl[ji],ji+10000)
-				if tbl[ji] then jit = jit .. string.format("XGUI.KST32BStroke(\'%s\',%d)\n",tbl[ji],ji+10000) end
+				if tbl[ji] then jit = jit .. string.format("XGUI.KST32BStroke(\'%s\',%d) ",tbl[ji],ji+10000) end
 			end
 		else
 			local k,t = 0,0
@@ -255,19 +260,19 @@ function XGUI.DrawVectorString(stir)
 			end
 			
 			--__xgui_vx = __xgui_vx - __xgui_fx
-			jit = jit .. "__xgui_vx = __xgui_vx - __xgui_fx\n"
+			jit = jit .. "__xgui_vx = __xgui_vx - __xgui_fx "
 			
 			--__stroke(tbl[((k + 161) * 256 + (t + 161)) - 32896],k*100+t)
-			if tbl[((k + 161) * 256 + (t + 161)) - 32896] then jit = jit .. string.format("XGUI.KST32BStroke(\'%s\',%d)\n",tbl[((k + 161) * 256 + (t + 161)) - 32896],k*100+t) end
+			if tbl[((k + 161) * 256 + (t + 161)) - 32896] then jit = jit .. string.format("XGUI.KST32BStroke(\'%s\',%d) ",tbl[((k + 161) * 256 + (t + 161)) - 32896],k*100+t) end
 			
 			lb = 0
 			
 			--__xgui_vx = __xgui_vx + __xgui_fx
-			jit = jit .. "__xgui_vx = __xgui_vx + __xgui_fx\n"
+			jit = jit .. "__xgui_vx = __xgui_vx + __xgui_fx "
 		end
 		
 		--__xgui_vx = __xgui_vx + __xgui_fx
-		jit = jit .. "__xgui_vx = __xgui_vx + __xgui_fx\n"
+		jit = jit .. "__xgui_vx = __xgui_vx + __xgui_fx "
 	end
 	
 	local f = loadstring(jit)
@@ -651,8 +656,8 @@ end
 
 
 function XGUI.DrawVectorString3DSide(stir,shader,shaderext)
-	__xgui_vx = __xgui_vx -- - XGUI.VectorStringWidth(stir) / 2
-	__xgui_vy = __xgui_vy -- - __xgui_fy / 2
+	__xgui_vx = __xgui_vx
+	__xgui_vy = __xgui_vy - __xgui_fy / 2
 	
 	XGUI.DrawVectorString3D(stir,shader,shaderext)
 end
