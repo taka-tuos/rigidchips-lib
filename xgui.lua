@@ -24,6 +24,12 @@ __xgui_moveorginy = 0		-- 描画原点Y座標(ドット単位)
 
 __xgui_jit = {}				-- コンパイル済み関数置き場
 
+__xgui_jitid_kst32b = 1
+__xgui_jitid_kst32b3d = 2
+__xgui_jitid_drawvs2d = 3
+__xgui_jitid_drawvs3d = 4
+__xgui_jitid_drawvs3dplus = 5
+
 __xgui_mbx,__xgui_mby = _MX(),_MY()		-- マウスX,Y座標(ドット単位)
 
 function XGUI.GetRegularPoint(x,y)
@@ -70,8 +76,12 @@ function XGUI.GetJit(id)
 	return __xgui_jit[id]
 end
 
+function XGUI.GenHash(s)
+	return s
+end
+
 function XGUI.KST32BStroke(str,id)
-	local jitfuncs = XGUI.GetJit("kst32b")
+	local jitfuncs = XGUI.GetJit(__xgui_jitid_kst32b)
 
 	if jitfuncs[id] then jitfuncs[id]() return end
 	
@@ -133,7 +143,7 @@ function XGUI.KST32BStroke(str,id)
 end
 
 function XGUI.KST32BStroke3D(str,id,shader,shaderext)
-	local jitfuncs = XGUI.GetJit("kst32b3D")
+	local jitfuncs = XGUI.GetJit(__xgui_jitid_kst32b3d)
 
 	if jitfuncs[id] then jitfuncs[id](shader,shaderext) return end
 	
@@ -218,9 +228,11 @@ end
 function XGUI.DrawVectorString(stir)
 	if not stir or string.len(stir) == 0 then return end
 
-	local jitfuncs = XGUI.GetJit("drawVS2D")
+	local id = XGUI.GenHash(stir)
+
+	local jitfuncs = XGUI.GetJit(__xgui_jitid_drawvs2d)
 	
-	if jitfuncs[stir] then jitfuncs[stir]() return end
+	if jitfuncs[id] then jitfuncs[id]() return end
 
 	local __stroke = XGUI.KST32BStroke
 	local i
@@ -588,7 +600,7 @@ end
 function XGUI.DrawVectorString3D(stir,shader,shaderext)
 	if not stir or string.len(stir) == 0 then return end
 
-	local jitfuncs = XGUI.GetJit("drawVS3D")
+	local jitfuncs = XGUI.GetJit(__xgui_jitid_drawvs3d)
 	
 	if jitfuncs[stir] then jitfuncs[stir](shader,shaderext) return end
 	
@@ -667,4 +679,151 @@ function XGUI.DrawVectorString3DCenter(stir,shader,shaderext)
 	__xgui_vy = __xgui_vy - __xgui_fy / 2
 	
 	XGUI.DrawVectorString3D(stir,shader,shaderext)
+end
+
+function XGUI.DrawVectorString3DWithMaxWidth(stir,widthmax,shader,shaderext)
+	if not stir or string.len(stir) == 0 then return end
+
+	local jitfuncs = XGUI.GetJit(__xgui_jitid_drawvs3dplus)
+	
+	if jitfuncs[stir] then jitfuncs[stir](shader,shaderext,widthmax) return end
+	
+	local __stroke = XGUI.KST32BStroke3D
+	local i
+	local ji
+	local tbl = __xgui_kst32b
+	
+	local lb = 0
+	
+	local jit = "return function(shader,shaderext,widthmax) "
+	
+	jit = jit .. "local base_x = __xgui_vx "
+	jit = jit .. "local base_y = __xgui_vy "
+	
+	for i=1,string.len(stir) do
+		ji = string.byte(stir,i)
+		
+		local lbs = ""
+		if lb ~= 0 then lbs = " + __xgui_fx" end
+		
+		jit = jit .. string.format("if __xgui_vx + __xgui_fx - base_x > widthmax then __xgui_vx = base_x%s __xgui_vy = __xgui_vy - __xgui_fy end ", lbs)
+		
+		if lb == 0 then
+			if (129 <= ji and ji <= 159) or (224 <= ji and ji <= 252) then
+				lb = ji
+			else
+				jit = jit .. "if __xgui_vx + __xgui_fx - base_x > widthmax then __xgui_vx = base_x __xgui_vy = __xgui_vy - __xgui_fy end "
+				--__stroke(tbl[ji],shader,shaderext)
+				if tbl[ji] then jit = jit .. string.format("XGUI.KST32BStroke3D(\'%s\',%d,shader,shaderext) ",tbl[ji],ji+10000) end
+			end
+		else
+			local k,t = 0,0
+			
+			if 129 <= lb and lb <= 159 then
+				k = (lb - 129) * 2
+			else
+				k = (lb - 224) * 2 + 62
+			end
+			
+			if 64 <= ji and ji <= 126 then
+				t = ji - 64
+			elseif 128 <= ji and ji <= 158 then
+				t = ji - 128 + 63
+			else
+				t = ji - 159
+				k = k + 1
+			end
+			
+			--__xgui_vx = __xgui_vx - __xgui_fx
+			jit = jit .. "__xgui_vx = __xgui_vx - __xgui_fx "
+			
+			--__stroke(tbl[((k + 161) * 256 + (t + 161)) - 32896],shader,shaderext)
+			if tbl[((k + 161) * 256 + (t + 161)) - 32896] then jit = jit .. string.format("XGUI.KST32BStroke3D(\'%s\',%d,shader,shaderext) ",tbl[((k + 161) * 256 + (t + 161)) - 32896],k*100+t) end
+			
+			lb = 0
+			
+			--__xgui_vx = __xgui_vx + __xgui_fx
+			jit = jit .. "__xgui_vx = __xgui_vx + __xgui_fx "
+		end
+		
+		--__xgui_vx = __xgui_vx + __xgui_fx
+		jit = jit .. "__xgui_vx = __xgui_vx + __xgui_fx "
+	end
+	
+	jit = jit .. "__xgui_vx = base_x "
+	jit = jit .. "__xgui_vy = __xgui_vy - __xgui_fy "
+	
+	jit = jit .. "end"
+	
+	local f = loadstring(jit)()
+	
+	f(shader,shaderext,widthmax)
+	
+	jitfuncs[stir] = f
+end
+
+function XGUI.DrawVectorString3DWithMaxWidthSide(stir,widthmax,shader,shaderext)
+	__xgui_vy = __xgui_vy + XGUI.VectorString3DWithMaxWidthHeight(stir,widthmax) * __xgui_fy / 2
+	
+	XGUI.DrawVectorString3DWithMaxWidth(stir,widthmax,shader,shaderext)
+end
+
+function XGUI.DrawVectorString3DWithMaxWidthCenter(stir,widthmax,shader,shaderext)
+	local w = XGUI.VectorStringWidth(stir)
+	
+	if w > widthmax then w = widthmax end
+
+	__xgui_vx = __xgui_vx - w / 2
+	__xgui_vy = __xgui_vy + XGUI.VectorString3DWithMaxWidthHeight(stir,widthmax) * __xgui_fy / 2
+	
+	XGUI.DrawVectorString3DWithMaxWidth(stir,widthmax,shader,shaderext)
+end
+
+function XGUI.VectorString3DWithMaxWidthHeight(stir,widthmax)
+	local i
+	local ji
+	local lb = 0
+	
+	local x = 0
+	local l = 1
+	
+	for i=1,string.len(stir) do
+		ji = string.byte(stir,i)
+		
+		local ofs = 0
+		if lb ~= 0 then ofs = __xgui_fx end
+		
+		if x + __xgui_fx > widthmax then x = ofs l = l + 1 end
+		
+		if lb == 0 then
+			if (129 <= ji and ji <= 159) or (224 <= ji and ji <= 252) then
+				lb = ji
+			else
+				if x + __xgui_fx > widthmax then x = 0 l = l + 1 end
+			end
+		else
+			lb = 0
+		end
+		
+		x = x + __xgui_fx
+	end
+	
+	return l
+end
+
+function XGUI.SampleVertexShader(x0,y0,ext)
+	local z = 0.05
+	
+	local x = (x0-512/2) / 512
+	local y = (y0-512/2) / 512
+	
+	local xx,xy,xz = -_XX(ext),-_XY(ext),-_XZ(ext)
+	local yx,yy,yz = _YX(ext),_YY(ext),_YZ(ext)
+	local zx,zy,zz = -_ZX(ext),-_ZY(ext),-_ZZ(ext)
+	
+	local a = (xx * x + yx * z + zx * y) + _X(ext)
+	local b = (xy * x + yy * z + zy * y) + _Y(ext)
+	local c = (xz * x + yz * z + zz * y) + _Z(ext)
+	
+	return a,b,c
 end

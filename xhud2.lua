@@ -86,7 +86,7 @@ function XHUD.Draw()
 	
 	local r_w = 16
 	
-	local jitid = string.format("%d%d",_WIDTH(),_HEIGHT())
+	local jitid = _WIDTH()*1000+_HEIGHT()
 	
 	if _jit_func[jitid] then
 		_jit_func[jitid]()
@@ -102,47 +102,53 @@ function XHUD.Draw()
 		
 		XGUI.SetDrawColorRGB(0,255,0)
 		
-		XGUI.Move2D(16,r_r+16)
+		--[[XGUI.Move2D(16,r_r+16)
 		XGUI.Line2D(16,16)
-		XGUI.Line2D(r_r+16,16)
+		XGUI.Line2D(r_r+16,16)]]--
+		
+		XGUI.Move2D(16,16)
+		XGUI.Line2D(r_r*2+16,16)
+		XGUI.Line2D(r_r*2+16,r_r*2+16)
+		XGUI.Line2D(16,r_r*2+16)
+		XGUI.Line2D(16,16)
 		
 		local i
-		for i=180,-90,-_ovalstep do
+		--[[for i=180,-90,-_ovalstep do
 			XGUI.Line2D(math.sin(math.rad(i))*r_r+r_r+16,math.cos(math.rad(i))*r_r+r_r+16)
-		end
+		end]]--
 		
-		i = 0
+		--[[i = 0
 		XGUI.Move2D(math.sin(math.rad(i))*r_s+r_r+16,math.cos(math.rad(i))*r_s+r_r+16)
 		
 		for i=0,360,_ovalstep do
 			XGUI.Line2D(math.sin(math.rad(i))*r_s+r_r+16,math.cos(math.rad(i))*r_s+r_r+16)
-		end
+		end]]--
 		
 		XGUI.Move2D(r_r+16,r_r+16)
-		XGUI.Line2D(math.sin(math.rad(180+_GETVIEWZOOM()/2))*r_s+r_r+16,math.cos(math.rad(180+_GETVIEWZOOM()/2))*r_s+r_r+16)
+		XGUI.Line2D(math.sin(math.rad(180+60/2))*r_s+r_r+16,16)
 		XGUI.Move2D(r_r+16,r_r+16)
-		XGUI.Line2D(math.sin(math.rad(180-_GETVIEWZOOM()/2))*r_s+r_r+16,math.cos(math.rad(180-_GETVIEWZOOM()/2))*r_s+r_r+16)
+		XGUI.Line2D(math.sin(math.rad(180-60/2))*r_s+r_r+16,16)
 		
 		
-		XGUI.Move2D(0,r_r+16)
+		--[[XGUI.Move2D(0,r_r+16)
 		
 		for i=-90,135,_ovalstep do
 			XGUI.Line2D(math.sin(math.rad(i))*r_t+r_r+16,math.cos(math.rad(i))*r_t+r_r+16)
 		end
 		
 		XGUI.Line2D(math.sin(math.rad(135))*r_t+r_r+16+64,math.cos(math.rad(135))*r_t+r_r+16-40)
-		XGUI.Line2D(_WIDTH(),math.cos(math.rad(135))*r_t+r_r+16-40)
+		XGUI.Line2D(_WIDTH(),math.cos(math.rad(135))*r_t+r_r+16-40)]]--
 		
 		
 		local r_u = 16
 		
 		local r_s1 = 512
 		
-		XGUI.Move2D(0,_HEIGHT()-16)
+		--XGUI.Move2D(0,_HEIGHT()-16)
 		
-		XGUI.Line2D(_WIDTH()-r_s1-r_u*2,_HEIGHT()-16)
+		--XGUI.Line2D(_WIDTH()-r_s1-r_u*2,_HEIGHT()-16)
 		
-		for i=0,90,_ovalstep do
+		--[[for i=0,90,_ovalstep do
 			XGUI.Line2D(math.sin(math.rad(i))*r_u+_WIDTH()-r_s1,math.cos(math.rad(i))*r_u+_HEIGHT()-16-r_u)
 		end
 		
@@ -150,9 +156,9 @@ function XHUD.Draw()
 			XGUI.Line2D(math.sin(math.rad(i))*r_u+_WIDTH()-r_s1+r_u*2,math.cos(math.rad(i))*r_u+_HEIGHT()-16-r_u-72)
 		end
 		
-		XGUI.Line2D(_WIDTH(),_HEIGHT()-16-r_u*2-72)
+		XGUI.Line2D(_WIDTH(),_HEIGHT()-16-r_u*2-72)]]--
 		
-		XGUI.Move2D(math.sin(math.rad(0))*r_v+r_v+16,math.cos(math.rad(0))*r_v+_HEIGHT()/2)
+		--[[XGUI.Move2D(math.sin(math.rad(0))*r_v+r_v+16,math.cos(math.rad(0))*r_v+_HEIGHT()/2)
 		
 		for i=0,360,_ovalstep do
 			XGUI.Line2D(math.sin(math.rad(i))*r_v+r_v+16,math.cos(math.rad(i))*r_v+_HEIGHT()/2)
@@ -183,7 +189,7 @@ function XHUD.Draw()
 		XGUI.Line2D(_WIDTH()-16,_HEIGHT()/2-r_s3)
 		XGUI.Line2D(_WIDTH()-16,_HEIGHT()/2-r_s3+r_s2)
 		XGUI.Line2D(_WIDTH()-16-r_s3*2,_HEIGHT()/2-r_s3+r_s2)
-		XGUI.Line2D(_WIDTH()-16-r_s3*2,_HEIGHT()/2-r_s3)
+		XGUI.Line2D(_WIDTH()-16-r_s3*2,_HEIGHT()/2-r_s3)]]--
 		
 		XGUI.Move2D(_WIDTH()/2-16,_HEIGHT()/2)
 		XGUI.Line2D(_WIDTH()/2+16,_HEIGHT()/2)
@@ -195,7 +201,7 @@ function XHUD.Draw()
 		
 		local r_s4 = 256
 		
-		XGUI.Move2D(r_u+_WIDTH()/2-r_s4-r_u	  ,_HEIGHT()/2-r_s4-r_u)
+		--[[XGUI.Move2D(r_u+_WIDTH()/2-r_s4-r_u	  ,_HEIGHT()/2-r_s4-r_u)
 		XGUI.Line2D(r_u+_WIDTH()/2-r_s4-r_u+16,_HEIGHT()/2-r_s4-r_u)
 		
 		XGUI.Move2D(r_u+_WIDTH()/2-r_s4-r_u*2 ,_HEIGHT()/2-r_s4)
@@ -223,11 +229,11 @@ function XHUD.Draw()
 		XGUI.Line2D(r_u+_WIDTH()/2-r_s4-r_u+16,_HEIGHT()/2+r_s4+r_u)
 		
 		XGUI.Move2D(r_u+_WIDTH()/2-r_s4-r_u*2 ,_HEIGHT()/2+r_s4)
-		XGUI.Line2D(r_u+_WIDTH()/2-r_s4-r_u*2 ,_HEIGHT()/2+r_s4-16)
+		XGUI.Line2D(r_u+_WIDTH()/2-r_s4-r_u*2 ,_HEIGHT()/2+r_s4-16)]]--
 		
 		
 		
-		for i=-90,-180,-_ovalstep do
+		--[[for i=-90,-180,-_ovalstep do
 			XGUI.Move2D(math.sin(math.rad(i-5))*r_u+_WIDTH()/2-r_s4,math.cos(math.rad(i-5))*r_u+_HEIGHT()/2-r_s4)
 			XGUI.Line2D(math.sin(math.rad(	i))*r_u+_WIDTH()/2-r_s4,math.cos(math.rad(	i))*r_u+_HEIGHT()/2-r_s4)
 		end
@@ -245,7 +251,7 @@ function XHUD.Draw()
 		for i=90,0,-_ovalstep do
 			XGUI.Move2D(math.sin(math.rad(i-5))*r_u+_WIDTH()/2+r_s4+r_u*2,math.cos(math.rad(i-5))*r_u+_HEIGHT()/2+r_s4)
 			XGUI.Line2D(math.sin(math.rad(	i))*r_u+_WIDTH()/2+r_s4+r_u*2,math.cos(math.rad(  i))*r_u+_HEIGHT()/2+r_s4)
-		end
+		end]]--
 		
 		if string.len(jit) > 0 then
 			local f = loadstring(jit)
@@ -272,15 +278,46 @@ function XHUD.Draw()
 	_ovel = _vel
 	
 	
-	for i=-20,20,40 do
-		XGUI.Move2D(math.sin(math.rad(_velrot+i))*r_w+r_v+16,math.cos(math.rad(_velrot+i))*r_w+_HEIGHT()/2)
-		XGUI.Line2D(math.sin(math.rad(_velrot+i))*r_v+r_v+16,math.cos(math.rad(_velrot+i))*r_v+_HEIGHT()/2)
-	end
+	local v11,v12 = math.sin(math.rad(_velrot-20))*r_w+r_v+16,math.cos(math.rad(_velrot-20))*r_w+_HEIGHT()/2
+	local v13,v14 = math.sin(math.rad(_velrot+20))*r_w+r_v+16,math.cos(math.rad(_velrot+20))*r_w+_HEIGHT()/2
 	
-	for i=-200,-160,40 do
+	local v21,v22 = math.sin(math.rad(_velrot-20))*r_v+r_v+16,math.cos(math.rad(_velrot-20))*r_v+_HEIGHT()/2
+	local v23,v24 = math.sin(math.rad(_velrot+20))*r_v+r_v+16,math.cos(math.rad(_velrot+20))*r_v+_HEIGHT()/2
+	
+	XGUI.Move2D(v11,v12)
+	XGUI.Line2D(v21,v22)
+	
+	XGUI.Move2D(v13,v14)
+	XGUI.Line2D(v23,v24)
+	
+	XGUI.Move2D(v11,v12)
+	XGUI.Line2D(v13,v14)
+	
+	XGUI.Move2D(v21,v22)
+	XGUI.Line2D(v23,v24)
+	
+	local w11,w12 = math.sin(math.rad(_velrot-200))*r_w+r_v+16,math.cos(math.rad(_velrot-200))*r_w+_HEIGHT()/2
+	local w13,w14 = math.sin(math.rad(_velrot-160))*r_w+r_v+16,math.cos(math.rad(_velrot-160))*r_w+_HEIGHT()/2
+	
+	local w21,w22 = math.sin(math.rad(_velrot-200))*r_v+r_v+16,math.cos(math.rad(_velrot-200))*r_v+_HEIGHT()/2
+	local w23,w24 = math.sin(math.rad(_velrot-160))*r_v+r_v+16,math.cos(math.rad(_velrot-160))*r_v+_HEIGHT()/2
+	
+	XGUI.Move2D(w11,w12)
+	XGUI.Line2D(w21,w22)
+	
+	XGUI.Move2D(w13,w14)
+	XGUI.Line2D(w23,w24)
+	
+	XGUI.Move2D(w11,w12)
+	XGUI.Line2D(w13,w14)
+	
+	XGUI.Move2D(w21,w22)
+	XGUI.Line2D(w23,w24)
+	
+	--[[for i=-200,-160,40 do
 		XGUI.Move2D(math.sin(math.rad(_velrot+i))*r_w+r_v+16,math.cos(math.rad(_velrot+i))*r_w+_HEIGHT()/2)
 		XGUI.Line2D(math.sin(math.rad(_velrot+i))*r_v+r_v+16,math.cos(math.rad(_velrot+i))*r_v+_HEIGHT()/2)
-	end
+	end]]--
 	
 	local ax1,ay1 = Rotate2D(-384-256,0,-_EZ())
 	local ax2,ay2 = Rotate2D(-384	   ,0,-_EZ())
@@ -294,7 +331,7 @@ function XHUD.Draw()
 	XGUI.Move2D(bx1+_WIDTH()/2,by1+_HEIGHT()/2)
 	XGUI.Line2D(bx2+_WIDTH()/2,by2+_HEIGHT()/2)
 	
-	for i=-10,10 do
+	--[[for i=-10,10 do
 		local j = i/11
 		local k = 0.5
 		
@@ -302,7 +339,7 @@ function XHUD.Draw()
 		
 		XGUI.Move2D(_WIDTH()-16-r_s3*k,_HEIGHT()/2+r_s3+r_s2/2*j+math.mod(_Y(),1)*4)
 		XGUI.Line2D(_WIDTH()-16,_HEIGHT()/2+r_s3+r_s2/2*j+math.mod(_Y(),1)*4)
-	end
+	end]]--
 	
 	XGUI.SetStringPosition(cx1+_WIDTH()/2,cy1+_HEIGHT()/2)
 	XGUI.DrawVectorString(string.format("%d",math.abs(math.deg(_EX()))))
@@ -405,7 +442,7 @@ function XHUD.Draw()
 				xm = xm / _rader * -r_r + _wsize_hlf
 				ym = ym / _rader *	r_r + _wsize_hlf
 				
-				if math.sqrt(xd * xd + yd * yd) < _rader then
+				if xd < _rader and xd >= -_rader and yd < _rader and yd >= -_rader then
 					XGUI.SetStringSize(6)
 					
 					XGUI.SetDrawColorRGB(255,255,255)
@@ -431,7 +468,7 @@ function XHUD.Draw()
 				xm = xm / _rader * -r_r + _wsize_hlf
 				ym = ym / _rader *	r_r + _wsize_hlf
 				
-				if math.sqrt(xd * xd + yd * yd) < _rader then
+				if xd < _rader and xd >= -_rader and yd < _rader and yd >= -_rader then
 					XGUI.SetStringSize(6)
 					
 					XGUI.SetDrawColorRGB(255,255,255)
