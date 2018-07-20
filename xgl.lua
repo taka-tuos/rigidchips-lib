@@ -29,8 +29,8 @@ function XGL.Draw(m,f,e)
 			y = m.g_Vertex[m.g_Vindex[v+1]*3+1+1]
 			z = m.g_Vertex[m.g_Vindex[v+1]*3+2+1]
 			--x,y,z=f(x,y,z,e)
-			if j == 0 then jit = jit .. string.format("_MOVE3D(%f,%f,%f,e) ", x, y, z)
-			else  jit = jit .. string.format("_LINE3D(%f,%f,%f,e) ", x, y, z) end
+			if j == 0 then jit = jit .. string.format("_MOVE3D(f(%f,%f,%f),e) ", x, y, z)
+			else  jit = jit .. string.format("_LINE3D(f(%f,%f,%f),e) ", x, y, z) end
 		end
 		w = w + m.g_Polnum[i+1]
 	end
