@@ -7,7 +7,7 @@ _ovalstep = 10
 
 _jit_func = {}
 
-function XHUD.Draw()
+function XHUD.Draw(disable_rader)
 	--<HUD>----------------------------------------------------------------
 	
 	_raderbase = 500
@@ -124,10 +124,18 @@ function XHUD.Draw()
 			XGUI.Line2D(math.sin(math.rad(i))*r_s+r_r+16,math.cos(math.rad(i))*r_s+r_r+16)
 		end]]--
 		
-		XGUI.Move2D(r_r+16,r_r+16)
-		XGUI.Line2D(math.sin(math.rad(180+60/2))*r_s+r_r+16,16)
-		XGUI.Move2D(r_r+16,r_r+16)
-		XGUI.Line2D(math.sin(math.rad(180-60/2))*r_s+r_r+16,16)
+		if not disable_rader then
+			XGUI.Move2D(r_r+16,r_r+16)
+			XGUI.Line2D(math.sin(math.rad(180+60/2))*r_s+r_r+16,16)
+			XGUI.Move2D(r_r+16,r_r+16)
+			XGUI.Line2D(math.sin(math.rad(180-60/2))*r_s+r_r+16,16)
+		else
+			XGUI.Move2D(16,16)
+			XGUI.Line2D(r_r*2+16,r_r*2+16)
+			
+			XGUI.Move2D(r_r*2+16,16)
+			XGUI.Line2D(16,r_r*2+16)
+		end
 		
 		
 		--[[XGUI.Move2D(0,r_r+16)
@@ -390,155 +398,157 @@ function XHUD.Draw()
 	
 	if not _prdp then _prdp = {} end
 	
-	for i=1,_PLAYERS()-1 do
-		local x,y,z = _NPOS(i)
-		local _wsize_hlf = r_r+16
-		
-		--Weapon.TargetBox(x,y,z,1)
-		
-		local x1,y1 = x-_X(0),z-_Z(0)
-		
-		if not _prdp[_PLAYERID(i)] then
-			_prdp[_PLAYERID(i)] = {}
+	if not disable_rader then
+		for i=1,_PLAYERS()-1 do
+			local x,y,z = _NPOS(i)
+			local _wsize_hlf = r_r+16
+			
+			--Weapon.TargetBox(x,y,z,1)
+			
+			local x1,y1 = x-_X(0),z-_Z(0)
+			
+			if not _prdp[_PLAYERID(i)] then
+				_prdp[_PLAYERID(i)] = {}
+				_prdp[_PLAYERID(i)].x = x
+				_prdp[_PLAYERID(i)].y = z
+				_prdp[_PLAYERID(i)].vx = 0
+				_prdp[_PLAYERID(i)].vy = 1
+			end
+			
+			local vx = x - _prdp[_PLAYERID(i)].x
+			local vy = z - _prdp[_PLAYERID(i)].y
+			
 			_prdp[_PLAYERID(i)].x = x
 			_prdp[_PLAYERID(i)].y = z
-			_prdp[_PLAYERID(i)].vx = 0
-			_prdp[_PLAYERID(i)].vy = 1
-		end
-		
-		local vx = x - _prdp[_PLAYERID(i)].x
-		local vy = z - _prdp[_PLAYERID(i)].y
-		
-		_prdp[_PLAYERID(i)].x = x
-		_prdp[_PLAYERID(i)].y = z
-		
-		local vl = math.sqrt(vx ^ 2 + vy ^ 2)
-		
-		if vl == 0 then
-			vx = _prdp[_PLAYERID(i)].vx
-			vy = _prdp[_PLAYERID(i)].vy
-		else
-			vx = vx / vl
-			vy = vy / vl
 			
-			_prdp[_PLAYERID(i)].vx = vx
-			_prdp[_PLAYERID(i)].vy = vy
-		end
-		
-		local x2 = x1 * math.cos(_EY(0)) - y1 * math.sin(_EY(0))
-		local y2 = x1 * math.sin(_EY(0)) + y1 * math.cos(_EY(0))
-		
-		x2 = x2 / _rader * -r_r + _wsize_hlf
-		y2 = y2 / _rader *	r_r + _wsize_hlf
-		
-		if Weapon then
-			local tbl = Weapon.PositionTable()
-			table.foreach(tbl, function(i,v)
-				local xd,yd = v.x-_X(0),v.z-_Z(0)
+			local vl = math.sqrt(vx ^ 2 + vy ^ 2)
+			
+			if vl == 0 then
+				vx = _prdp[_PLAYERID(i)].vx
+				vy = _prdp[_PLAYERID(i)].vy
+			else
+				vx = vx / vl
+				vy = vy / vl
 				
-				local xm = xd * math.cos(_EY(0)) - yd * math.sin(_EY(0))
-				local ym = xd * math.sin(_EY(0)) + yd * math.cos(_EY(0))
-				
-				xm = xm / _rader * -r_r + _wsize_hlf
-				ym = ym / _rader *	r_r + _wsize_hlf
-				
-				if xd < _rader and xd >= -_rader and yd < _rader and yd >= -_rader then
-					XGUI.SetStringSize(6)
-					
-					XGUI.SetDrawColorRGB(255,255,255)
-					
-					XGUI.SetStringPosition(xm,ym)
-					XGUI.DrawVectorStringCenter("Å¢")
-				end
-			end)
-		end
-		
-		--[[local j
-		
-		
-		for j=1,_mn do
-			if _men[i] then
-				local core = _G["MC"..j]
-				
-				local xd,yd = _X(core)-_X(0),_Z(core)-_Z(0)
-				
-				local xm = xd * math.cos(_EY(0)) - yd * math.sin(_EY(0))
-				local ym = xd * math.sin(_EY(0)) + yd * math.cos(_EY(0))
-				
-				xm = xm / _rader * -r_r + _wsize_hlf
-				ym = ym / _rader *	r_r + _wsize_hlf
-				
-				if xd < _rader and xd >= -_rader and yd < _rader and yd >= -_rader then
-					XGUI.SetStringSize(6)
-					
-					XGUI.SetDrawColorRGB(255,255,255)
-					
-					XGUI.SetStringPosition(xm,ym)
-					XGUI.DrawVectorStringCenter("Å¢")
-				end
+				_prdp[_PLAYERID(i)].vx = vx
+				_prdp[_PLAYERID(i)].vy = vy
 			end
-		end]]--
-		
-		XGUI.SetStringSize(12)
-		
-		if math.sqrt(x1 * x1 + y1 * y1) < _rader and _PLAYERID(i) ~= _PLAYERMYID() then
-			if _PLAYERARMS(i) ~= 0 then XGUI.SetDrawColorRGB(255,0,0)
-			else XGUI.SetDrawColorRGB(255,255,255) end
-			local szL = ""
-			local enL = false
 			
-			local k = 0
+			local x2 = x1 * math.cos(_EY(0)) - y1 * math.sin(_EY(0))
+			local y2 = x1 * math.sin(_EY(0)) + y1 * math.cos(_EY(0))
+			
+			x2 = x2 / _rader * -r_r + _wsize_hlf
+			y2 = y2 / _rader *	r_r + _wsize_hlf
 			
 			if Weapon then
-				for j=1, Weapon.Max do
-					if Weapon.Target[j] == i then
-						if k ~= 0 then szL = szL .. "," end
-						szL = szL .. j
-						enL = true
-						k = k + 1
+				local tbl = Weapon.PositionTable()
+				table.foreach(tbl, function(i,v)
+					local xd,yd = v.x-_X(0),v.z-_Z(0)
+					
+					local xm = xd * math.cos(_EY(0)) - yd * math.sin(_EY(0))
+					local ym = xd * math.sin(_EY(0)) + yd * math.cos(_EY(0))
+					
+					xm = xm / _rader * -r_r + _wsize_hlf
+					ym = ym / _rader *	r_r + _wsize_hlf
+					
+					if xd < _rader and xd >= -_rader and yd < _rader and yd >= -_rader then
+						XGUI.SetStringSize(6)
+						
+						XGUI.SetDrawColorRGB(255,255,255)
+						
+						XGUI.SetStringPosition(xm,ym)
+						XGUI.DrawVectorStringCenter("Å¢")
+					end
+				end)
+			end
+			
+			--[[local j
+			
+			
+			for j=1,_mn do
+				if _men[i] then
+					local core = _G["MC"..j]
+					
+					local xd,yd = _X(core)-_X(0),_Z(core)-_Z(0)
+					
+					local xm = xd * math.cos(_EY(0)) - yd * math.sin(_EY(0))
+					local ym = xd * math.sin(_EY(0)) + yd * math.cos(_EY(0))
+					
+					xm = xm / _rader * -r_r + _wsize_hlf
+					ym = ym / _rader *	r_r + _wsize_hlf
+					
+					if xd < _rader and xd >= -_rader and yd < _rader and yd >= -_rader then
+						XGUI.SetStringSize(6)
+						
+						XGUI.SetDrawColorRGB(255,255,255)
+						
+						XGUI.SetStringPosition(xm,ym)
+						XGUI.DrawVectorStringCenter("Å¢")
+					end
+				end
+			end]]--
+			
+			XGUI.SetStringSize(12)
+			
+			if math.sqrt(x1 * x1 + y1 * y1) < _rader and _PLAYERID(i) ~= _PLAYERMYID() then
+				if _PLAYERARMS(i) ~= 0 then XGUI.SetDrawColorRGB(255,0,0)
+				else XGUI.SetDrawColorRGB(255,255,255) end
+				local szL = ""
+				local enL = false
+				
+				local k = 0
+				
+				if Weapon then
+					for j=1, Weapon.Max do
+						if Weapon.Target[j] == i then
+							if k ~= 0 then szL = szL .. "," end
+							szL = szL .. j
+							enL = true
+							k = k + 1
+						end
+					end
+					
+					if enL then
+						XGUI.SetDrawColorRGB(255,255,0)
+						XGUI.SetStringPosition(x2+8,y2+8)
+						XGUI.DrawVectorString(string.format("LOCK %s",szL))
 					end
 				end
 				
-				if enL then
-					XGUI.SetDrawColorRGB(255,255,0)
-					XGUI.SetStringPosition(x2+8,y2+8)
-					XGUI.DrawVectorString(string.format("LOCK %s",szL))
+				local ptri = {{0,6},{-4,-6},{4,-6}}
+				
+				local pi = 0
+				
+				local yvm = math.min(1.5,math.max(0.5,(y - _Y(0))/12+1))
+				
+				for pi=1,3 do
+					local pi1 = pi
+					local pi2 = pi+1
+					if pi2 > 3 then pi2 = 1 end
+					
+					local pix1,piy1 = ptri[pi1][2]*yvm,ptri[pi1][1]*yvm
+					local pix2,piy2 = ptri[pi2][2]*yvm,ptri[pi2][1]*yvm
+					
+					local vx1 = vx * math.cos(_EY(0)) - vy * math.sin(_EY(0))
+					local vy1 = vx * math.sin(_EY(0)) + vy * math.cos(_EY(0))
+					
+					local pvth = -math.atan2(-vy1,-vx1)
+					
+					local pfx1 = pix1 * math.cos(pvth) - piy1 * math.sin(pvth)
+					local pfy1 = pix1 * math.sin(pvth) + piy1 * math.cos(pvth)
+					
+					local pfx2 = pix2 * math.cos(pvth) - piy2 * math.sin(pvth)
+					local pfy2 = pix2 * math.sin(pvth) + piy2 * math.cos(pvth)
+					
+					XGUI.Move2D(pfx1+x2,pfy1+y2)
+					XGUI.Line2D(pfx2+x2,pfy2+y2)
 				end
+				
+				--XGUI.SetStringPosition(x2,y2)
+				
+				--XGUI.SetStringPosition(x2,y2)
+				--XGUI.DrawVectorStringCenter("Å~")
 			end
-			
-			local ptri = {{0,6},{-4,-6},{4,-6}}
-			
-			local pi = 0
-			
-			local yvm = math.min(1.5,math.max(0.5,(y - _Y(0))/12+1))
-			
-			for pi=1,3 do
-				local pi1 = pi
-				local pi2 = pi+1
-				if pi2 > 3 then pi2 = 1 end
-				
-				local pix1,piy1 = ptri[pi1][2]*yvm,ptri[pi1][1]*yvm
-				local pix2,piy2 = ptri[pi2][2]*yvm,ptri[pi2][1]*yvm
-				
-				local vx1 = vx * math.cos(_EY(0)) - vy * math.sin(_EY(0))
-				local vy1 = vx * math.sin(_EY(0)) + vy * math.cos(_EY(0))
-				
-				local pvth = -math.atan2(-vy1,-vx1)
-				
-				local pfx1 = pix1 * math.cos(pvth) - piy1 * math.sin(pvth)
-				local pfy1 = pix1 * math.sin(pvth) + piy1 * math.cos(pvth)
-				
-				local pfx2 = pix2 * math.cos(pvth) - piy2 * math.sin(pvth)
-				local pfy2 = pix2 * math.sin(pvth) + piy2 * math.cos(pvth)
-				
-				XGUI.Move2D(pfx1+x2,pfy1+y2)
-				XGUI.Line2D(pfx2+x2,pfy2+y2)
-			end
-			
-			--XGUI.SetStringPosition(x2,y2)
-			
-			--XGUI.SetStringPosition(x2,y2)
-			--XGUI.DrawVectorStringCenter("Å~")
 		end
 	end
 	
@@ -552,7 +562,12 @@ function XHUD.Draw()
 	XGUI.SetStringSize(16)
 	
 	XGUI.SetStringPosition(128+12,256+32)
-	XGUI.DrawVectorStringCenter(string.format("%d",_rader + _raderbase))
+	
+	if not disable_rader then
+		XGUI.DrawVectorStringCenter(string.format("%d",_rader + _raderbase))
+	else
+		XGUI.DrawVectorStringCenter("DISABLE")
+	end
 	
 	if not _fmsg then _fmsg = 0 end
 	if not _msg then _msg = "" end

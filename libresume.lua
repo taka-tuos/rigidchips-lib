@@ -69,6 +69,8 @@ function Missile.Create(func,n,rawtable)
 	obj.moBp[8] = 0
 	obj.moBp[9] = 0
 	
+	obj.moBp[10] = 0
+	
 	obj.usetgt = true
 	
 	obj.Fire = function(self)
@@ -157,11 +159,15 @@ function Missile.Create(func,n,rawtable)
 			local ny = uvy - vy
 			local nz = uvz - vz
 			
-			local nl = _LEN3(uxv,uyv,uzv) - _LEN3(vx,vy,vz)
+			local nl = _LEN3(ux-px,uy-py,uz-pz)
 			
 			out(0,nx,ny,nz)
 				
-			_G["MP"..self.n] = math.limit(nl * 30000,200000,-200000)
+			_G["MP"..self.n] = 200000
+			
+			if nl < 1000 then
+				_G["MP"..self.n] = _G["MP"..self.n] - nl * 20000
+			end
 			
 			local dmp = _G["MP"..self.n]
 			
@@ -230,6 +236,8 @@ function Missile.Create(func,n,rawtable)
 		self.moBp[4] = uxv
 		self.moBp[5] = uyv
 		self.moBp[6] = uzv
+		
+		--if self.moBp[10] == 0 then
 		
 		return self
 	end
