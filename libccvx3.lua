@@ -191,8 +191,8 @@ J_PID = XPID_new()
 
 function _NORMANALOG(n)
 	local v = _ANALOG(n)
-	if v < 100 and v > -100 then v = 0 end
-	return _ANALOG(n)/1000
+	if v < 150 and v > -150 then v = 0 end
+	return v/1000
 end
 
 function GetPRVBAnalog(tbl,now)
@@ -202,6 +202,8 @@ function GetPRVBAnalog(tbl,now)
 	local p=_LINER(now.p,ap*tbl.p.limit,tbl.p.step)
 	
 	local r,v = 0,0
+	
+	--out(10,_ANALOG(0))
 	
 	local dr = math.rad(_NORMANALOG(0)*tbl.r.tgt/30)
 	local dv = math.rad(-_NORMANALOG(1)*tbl.v.tgt/30)
