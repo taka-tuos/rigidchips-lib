@@ -550,7 +550,7 @@ function _NORMANALOG(n)
 end
 
 function GetPRVAnalog(tbl)
-	local ap = _NORMANALOG(5)
+	local ap = _NORMANALOG(2)
 	if ap < 0 then ap = 0 end
 
 	local p=_LINER(P,ap*tbl.p.limit,tbl.p.step)

@@ -196,7 +196,7 @@ function _NORMANALOG(n)
 end
 
 function GetPRVBAnalog(tbl,now)
-	local ap = _NORMANALOG(5)
+	local ap = _NORMANALOG(2)
 	if ap < 0 then ap = 0 end
 
 	local p=_LINER(now.p,ap*tbl.p.limit,tbl.p.step)
@@ -211,7 +211,7 @@ function GetPRVBAnalog(tbl,now)
 	r = R_PID:PID(dr,WZ,tbl.r.kp,tbl.r.ki,tbl.r.kd,tbl.r.il)
 	v = V_PID:PID(dv,WX,tbl.v.kp,tbl.v.ki,tbl.v.kd,tbl.v.il)
 	
-	local ab = _NORMANALOG(5)
+	local ab = _NORMANALOG(2)
 	if ab > 0 then ab = 0 end
 	
 	local ab =_LINER(now.b,ab*60,30)

@@ -62,13 +62,13 @@ function XGUI.Move2D(x,y)
 	--local rx,ry = XGUI.GetRegularPoint(math.floor(x+0.5) + __xgui_moveorginx,math.floor(y+0.5) + __xgui_moveorginy)
 	local rx,ry = XGUI.GetRegularPoint(x + __xgui_moveorginx,y + __xgui_moveorginy)
 	__xgui_movex,__xgui_movey = x,y
-	_MOVE2D(rx,ry)
+	--_MOVE2D(rx,ry)
 end
 
 function XGUI.Line2D(x,y)
 	--local rx,ry = XGUI.GetRegularPoint(math.floor(x+0.5) + __xgui_moveorginx,math.floor(y+0.5) + __xgui_moveorginy)
 	local rx,ry = XGUI.GetRegularPoint(x + __xgui_moveorginx,y + __xgui_moveorginy)
-	_LINE2D(rx,ry)
+	--_LINE2D(rx,ry)
 end
 
 function XGUI.GetJit(id)
